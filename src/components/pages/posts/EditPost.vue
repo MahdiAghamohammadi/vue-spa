@@ -1,6 +1,6 @@
 <template>
   <div class="col-md-6">
-    <h2 class="mb-4">Create Post:</h2>
+    <h2 class="mb-4">Edit Post:</h2>
     <form @submit.prevent="validate">
       <div class="form-group mb-2">
         <label for="title">Title</label>
@@ -8,7 +8,6 @@
           type="text"
           class="form-control"
           id="title"
-          placeholder="Title"
           v-model.lazy.trim="form.title"
         />
       </div>
@@ -21,7 +20,6 @@
           class="form-control"
           id="body"
           rows="7"
-          placeholder="Body"
           v-model.lazy.trim="form.body"
         ></textarea>
       </div>
@@ -34,7 +32,7 @@
           class="spinner-border spinner-border-sm"
           role="status"
         ></div>
-        Create
+        Edit
       </button>
     </form>
   </div>
@@ -44,6 +42,7 @@
 import { reactive, ref } from "vue";
 import axios from "axios";
 import Swal from "sweetalert2";
+import { useRoute } from "vue-router";
 export default {
   setup() {
     const form = reactive({
@@ -53,6 +52,21 @@ export default {
       bodyError: "",
     });
     const loading = ref(false);
+    const route = useRoute();
+
+    function getPost() {
+      axios
+        .get(`https://jsonplaceholder.typicode.com/posts/${route.params.id}`)
+        .then(function (response) {
+          // handle success
+          form.title = response.data.title;
+          form.body = response.data.body;
+        })
+        .catch(function (error) {
+          // handle error
+          console.log(error);
+        });
+    }
     function validate() {
       if (form.title === "") {
         form.titleError = "Title is required";
@@ -68,12 +82,13 @@ export default {
 
       if (form.title !== "" && form.body !== "") {
         loading.value = true;
-        createPost();
+        updatePost();
       }
     }
-    function createPost() {
+    function updatePost() {
       axios
-        .post("https://jsonplaceholder.typicode.com/posts/", {
+        .put(`https://jsonplaceholder.typicode.com/posts/${route.params.id}`, {
+          id: route.params.id,
           title: form.title,
           body: form.body,
           userId: 1,
@@ -83,7 +98,7 @@ export default {
           loading.value = false;
           Swal.fire({
             title: "Success!",
-            text: "Post Created Successfully",
+            text: "Post edited Successfully",
             icon: "success",
             confirmButtonText: "Ok",
           });
@@ -94,6 +109,8 @@ export default {
           console.log(error);
         });
     }
+
+    getPost();
     return { form, validate, loading };
   },
 };
