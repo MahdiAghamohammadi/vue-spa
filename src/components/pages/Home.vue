@@ -11,6 +11,9 @@
         <router-link :to="{ name: 'users' }" class="btn btn-dark btn-sm"
           >Users</router-link
         >
+        <router-link :to="{ name: 'posts' }" class="btn btn-light btn-sm ms-3"
+          >Posts</router-link
+        >
       </div>
     </div>
   </div>
